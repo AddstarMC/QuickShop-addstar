@@ -2,17 +2,18 @@ package org.maxgamer.QuickShop.Listeners;
 
 import java.util.HashMap;
 
-import au.com.addstar.monolith.util.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.block.data.Directional;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -23,7 +24,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.util.BlockIterator;
 import org.maxgamer.QuickShop.QuickShop;
 import org.maxgamer.QuickShop.Shop.DisplayItem;
 import org.maxgamer.QuickShop.Shop.Info;
@@ -137,18 +137,12 @@ public class PlayerListener implements Listener {
 
             // Finds out where the sign should be placed for the shop
             Block last = null;
-            final Location from = p.getLocation().clone();
-            from.setY(b.getY());
-            from.setPitch(0);
-            final BlockIterator bIt = new BlockIterator(from, 0, 7);
-            while (bIt.hasNext()) {
-                final Block n = bIt.next();
-                if (n.equals(b)) {
-                    break;
-                }
-                last = n;
-            }
 
+            last = e.getClickedBlock().getRelative(e.getBlockFace());
+            if(e.getClickedBlock().getBlockData() instanceof Directional){
+                BlockFace bf = ((Directional) e.getClickedBlock().getBlockData()).getFacing();
+                last = e.getClickedBlock().getRelative(bf);
+            }
             // Send creation menu.
             final Info info = new Info(b.getLocation(), ShopAction.CREATE, e.getItem(), last);
             plugin.getShopManager().getActions().put(p.getName(), info);
