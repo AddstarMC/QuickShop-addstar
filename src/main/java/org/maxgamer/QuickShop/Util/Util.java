@@ -7,31 +7,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.enchantments.Enchantment;
 
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
-import org.bukkit.map.MapView;
-import org.bukkit.material.Diode;
 import org.bukkit.material.Sign;
 
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.maxgamer.QuickShop.QuickShop;
 
 import com.google.common.collect.Maps;
 
 import au.com.addstar.monolith.StringTranslator;
+import org.maxgamer.QuickShop.Shop.Shop;
 
 public class Util {
     private static HashSet<Material> tools       = new HashSet<>();
@@ -190,6 +190,38 @@ public class Util {
 
         return null;
     }
+
+	/**
+	 * Checks whether someone else's shop is within reach of a hopper being placed by a player.
+	 *
+	 * @param b
+	 *            The block being placed.
+	 * @param p
+	 *            The player performing the action.
+	 * @return true if a nearby shop was found, false otherwise.
+	 */
+	public static boolean isOtherShopWithinHopperReach(Block b, Player p) {
+		// Check 5 relative positions that can be affected by a hopper: behind, in front of, to the right,
+		// to the left and underneath.
+		Block[] blocks = new Block[5];
+		blocks[0] = b.getRelative(0, 0, -1);
+		blocks[1] = b.getRelative(0, 0, 1);
+		blocks[2] = b.getRelative(1, 0, 0);
+		blocks[3] = b.getRelative(-1, 0, 0);
+		blocks[4] = b.getRelative(0, 1, 0);
+		for (Block c : blocks) {
+			Shop firstShop = plugin.getShopManager().getShop(c.getLocation());
+			// If firstShop is null but is container, it can be used to drain contents from a shop created
+			// on secondHalf.
+			Block secondHalf = getSecondHalf(c);
+			Shop secondShop = secondHalf == null ? null : plugin.getShopManager().getShop(secondHalf.getLocation());
+			if (firstShop != null && !p.getUniqueId().equals(firstShop.getOwner())
+					|| secondShop != null && !p.getUniqueId().equals(secondShop.getOwner())) {
+				return true;
+			}
+		}
+		return false;
+	}
 
     /**
      * Converts a string into an item from the database.
@@ -423,6 +455,12 @@ public class Util {
         return Util.tools.contains(mat);
     }
 
+
+    private static void output(boolean output, CommandSender sender,String message){
+        if(!output)return;
+        if(sender == null)return;
+        sender.sendMessage(message);
+    }
     /**
      * Compares two items to each other. Returns true if they match.
      * 
@@ -432,47 +470,90 @@ public class Util {
      *            The second item stack
      * @return true if the itemstacks match. (Material, durability, enchants)
      */
-    public static boolean matches(ItemStack stack1, ItemStack stack2) {
-        if (stack1 == stack2) {
-            return true; // Referring to the same thing, or both are null.
-        }
-        if (stack1 == null || stack2 == null) {
-            return false; // One of them is null (Can't be both, see above)
-        }
+    public static boolean matches(ItemStack stack1, ItemStack stack2){
+        return matches(stack1,stack2,null,false);
+    }
 
-        if (stack1.getType() != stack2.getType()) {
-            return false; // Not the same material
+    public static boolean matches(ItemStack stack1, ItemStack stack2, CommandSender sender, boolean output) {
+        if(stack1 == null && stack2 == null){
+            return true;
         }
-        if(stack1.getItemMeta() != stack2.getItemMeta()){
+        if(stack1 == null){
             return false;
         }
-        if (!stack1.getEnchantments().equals(stack2.getEnchantments())) {
-            return false; // They have the same enchants
+        if(stack1.isSimilar(stack2)){ //Qty does not need to match here.
+            output(output,sender, "QS MATCH SUCCES: isSimilar match: " + stack1 + " matched "+ stack2);
+            return true;
         }
+        //Fuzzy match now...
+        if (stack1.getType() != stack2.getType()){
+            output(output,sender, "QS MATCH FAIL: " + stack1 + " didnt match "+ stack2);
+            return false; // Not the same material
+        }
+        if(stack1.hasItemMeta() != stack2.hasItemMeta()){
+            output(output,sender, "QS MATCH FAIL: " + stack1 + " didnt match "+ stack2);
+            return false;
+        }
+        if(stack1.hasItemMeta()) {
+            if (stack1.getItemMeta().getClass() == stack2.getItemMeta().getClass()) {
+                ItemMeta meta1 = stack1.getItemMeta();
+                ItemMeta meta2 = stack2.getItemMeta();
+                if (meta1.getLore() != meta2.getLore()) return false;
+                if (!meta1.getDisplayName().equals(meta2.getDisplayName())) return false;
+                if (!meta1.getItemFlags().equals(meta2.getItemFlags())) return false;
+                if (!meta1.getEnchants().equals(meta2.getEnchants())) return false;
+                if (meta1 instanceof BookMeta) {
+                    BookMeta bmeta1 = (BookMeta) meta1;
+                    BookMeta bmeta2 = (BookMeta) meta2;
+                    if (!bmeta1.getPages().equals(bmeta2.getPages()) || !bmeta1.getTitle().equals(bmeta2.getTitle())) {
+                        output(output, sender, "QS MATCH FAIL: BookMeta mismatch -" + stack1 + " didnt match " + stack2);
+                        return false;
+                    }
+                }
+                if (meta1 instanceof PotionMeta) {
+                    PotionData potionData = ((PotionMeta) meta1).getBasePotionData();
+                    PotionData pdata2 = ((PotionMeta) meta2).getBasePotionData();
+                    if (!potionData.equals(pdata2)) {
+                        output(output, sender, "QS MATCH FAIL: PotionData mismatch -" + stack1 + " didnt match " + stack2);
+                        return false;
+                    }
 
-        try {
-            Class.forName("org.bukkit.inventory.meta.EnchantmentStorageMeta");
-            final boolean book1 = stack1.getItemMeta() instanceof EnchantmentStorageMeta;
-            final boolean book2 = stack2.getItemMeta() instanceof EnchantmentStorageMeta;
-            if (book1 != book2) {
-                return false;// One has enchantment meta, the other does not.
-            }
-            if (book1) { // They are the same here (both true or both
-                                 // false). So if one is true, the other is
-                                 // true.
-                final Map<Enchantment, Integer> ench1 = ((EnchantmentStorageMeta) stack1.getItemMeta())
-                        .getStoredEnchants();
-                final Map<Enchantment, Integer> ench2 = ((EnchantmentStorageMeta) stack2.getItemMeta())
-                        .getStoredEnchants();
-                if (!ench1.equals(ench2)) {
-                    return false; // Enchants aren't the same.
+                }
+                if (meta1 instanceof FireworkMeta) {
+                    FireworkMeta fmeta = (FireworkMeta) meta1;
+                    if (!fmeta.getEffects().equals(((FireworkMeta) meta2).getEffects()) || fmeta.getPower() != ((FireworkMeta) meta2).getPower()) {
+                        output(output, sender, "QS MATCH FAIL: FireworkMeta mismatch -" + stack1 + " didnt match " + stack2);
+                        return false;
+                    }
+                }
+                if (meta1 instanceof SkullMeta) {
+                    if (((SkullMeta) meta1).hasOwner() != ((SkullMeta) meta2).hasOwner() || (((SkullMeta) meta1).hasOwner() &&
+                            ((SkullMeta) meta1).getOwningPlayer().getUniqueId() != ((SkullMeta) meta2).getOwningPlayer().getUniqueId())) {
+                        output(output, sender, "QS MATCH FAIL: SkullMeta mismatch -" + stack1 + " didnt match " + stack2);
+                        return false;
+                    }
+
+                }
+                if (meta1 instanceof BannerMeta) {
+                    BannerMeta bannerMeta = (BannerMeta) meta1;
+                    BannerMeta bmeta2 = (BannerMeta) meta2;
+                    if (!bannerMeta.getPatterns().equals(bmeta2.getPatterns())) {
+                        output(output, sender, "QS MATCH FAIL: BannerMeta mismatch -" + stack1 + " didnt match " + stack2);
+                        return false;
+                    }
+                }
+                if (meta1 instanceof EnchantmentStorageMeta) {
+                    if (!meta1.getEnchants().equals(meta2.getEnchants())) {
+                        output(output, sender, "QS MATCH FAIL: EnchantStorageMeta mismatch -" + stack1 + " didnt match " + stack2);
+                        return false;
+                    }
                 }
             }
-        } catch (final ClassNotFoundException e) {
-            // Nothing. They dont have a build high enough to support this.
+            output(output, sender, "QS MATCH FAIL: meta class failed - " + stack1 + " didnt match " + stack2);
+            return false;
+        }else {
+            return true;
         }
-
-        return true;
     }
 
     /**

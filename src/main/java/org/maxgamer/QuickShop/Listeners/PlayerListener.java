@@ -61,7 +61,6 @@ public class PlayerListener implements Listener {
      * Left click a SHOP chest : Send purchase menu
      * @param e the event
      */
-    @SuppressWarnings("deprecation")
     @EventHandler(ignoreCancelled = true)
     public void onClick(PlayerInteractEvent e) {
         if (e.getAction() != Action.LEFT_CLICK_BLOCK) {
