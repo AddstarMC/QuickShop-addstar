@@ -15,9 +15,13 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Attachable;
+import org.bukkit.material.Directional;
 import org.bukkit.material.Sign;
+import org.bukkit.metadata.MetadataValue;
 import org.maxgamer.QuickShop.QuickShop;
 import org.maxgamer.QuickShop.Database.Database;
 import org.maxgamer.QuickShop.Util.MsgUtil;
@@ -383,47 +387,25 @@ public class ShopManager {
 
                     // Figures out which way we should put the sign on and
                     // sets its text.
-                    if (info.getSignBlock() != null && info.getSignBlock().getType() == Material.AIR
+                    Block signblock = info.getSignBlock();
+                    Block shopBlock = info.getLocation().getBlock();
+                    if (signblock != null && signblock.getType() == Material.AIR
                             && plugin.getConfig().getBoolean("shop.auto-sign")) {
-                        final BlockState bs = info.getSignBlock().getState();
-                        final BlockFace bf = info.getLocation().getBlock().getFace(
-                                info.getSignBlock());
-                        bs.setType(Material.WALL_SIGN);
-
-                        final Sign sign = (Sign) bs.getData();
+                        BlockState signBlockState = signblock.getState();
+                        BlockFace bf = shopBlock.getFace(info.getSignBlock());
+                        if(bf == null){ //signBlock isn't connected???!!!
+                            if(shopBlock.getBlockData() instanceof Directional){
+                                Directional shopdata = (Directional) shopBlock.getBlockData();
+                                bf = shopdata.getFacing();
+                                signblock = shopBlock.getRelative(bf);
+                                signBlockState = signblock.getState();
+                            }
+                        }
+                        signBlockState.setType(Material.WALL_SIGN);
+                        final Sign sign = (Sign) signBlockState.getData();
                         sign.setFacingDirection(bf);
-
-                        bs.update(true);
-
+                        signBlockState.update(true);
                         shop.setSignText();
-                        /*
-                         * Block b = shop.getLocation().getBlock();
-                         * ItemFrame iFrame = (ItemFrame)
-                         * b.getWorld().spawnEntity(b.getLocation(),
-                         * EntityType.ITEM_FRAME);
-                         * BlockFace[] faces = new
-                         * BlockFace[]{BlockFace.NORTH, BlockFace.EAST,
-                         * BlockFace.SOUTH, BlockFace.WEST};
-                         * for(BlockFace face : faces){
-                         * if(face == bf) continue; //This is the sign's
-                         * location
-                         * iFrame.setFacingDirection(bf, true);
-                         * //iFrame.setItem(shop.getItem());
-                         * ItemStack iStack = shop.getItem().clone();
-                         * iStack.setAmount(0);
-                         * iFrame.setItem(iStack);
-                         * /*
-                         * Field handleField =
-                         * iFrame.getClass().getField("entity");
-                         * handleField.setAccessible(true);
-                         * Object handle = handleField.get(iFrame);
-                         * ItemStack bukkitStack = shop.getItem();
-                         * Field itemStackHandle =
-                         * Method setItemStack =
-                         * handle.getClass().getMethod("a", Object.class);
-                         * setItemStack.
-                         */
-                        // }
                     }
     
                     final ContainerShop cs = (ContainerShop) shop;

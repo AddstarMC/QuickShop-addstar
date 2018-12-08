@@ -137,10 +137,10 @@ public class PlayerListener implements Listener {
             // Finds out where the sign should be placed for the shop
             Block last = null;
 
-            last = e.getClickedBlock().getRelative(e.getBlockFace());
-            if(e.getClickedBlock().getBlockData() instanceof Directional){
-                BlockFace bf = ((Directional) e.getClickedBlock().getBlockData()).getFacing();
-                last = e.getClickedBlock().getRelative(bf);
+            last = b.getRelative(e.getBlockFace());
+            if(b.getBlockData() instanceof Directional){
+                BlockFace bf = ((Directional) b.getBlockData()).getFacing();
+                last = b.getRelative(bf);
             }
             // Send creation menu.
             final Info info = new Info(b.getLocation(), ShopAction.CREATE, e.getItem(), last);

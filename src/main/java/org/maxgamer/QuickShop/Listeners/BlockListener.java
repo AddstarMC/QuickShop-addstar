@@ -1,6 +1,5 @@
 package org.maxgamer.QuickShop.Listeners;
 
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,17 +11,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Sign;
 import org.maxgamer.QuickShop.QuickShop;
-import org.maxgamer.QuickShop.Shop.DisplayItem;
-import org.maxgamer.QuickShop.Shop.Info;
-import org.maxgamer.QuickShop.Shop.Shop;
-import org.maxgamer.QuickShop.Shop.ShopAction;
+import org.maxgamer.QuickShop.Shop.*;
 import org.maxgamer.QuickShop.Util.MsgUtil;
 import org.maxgamer.QuickShop.Util.Util;
 
@@ -144,4 +140,13 @@ public class BlockListener implements Listener {
             event.setCancelled(true);
         }
     }
+    @EventHandler(priority = EventPriority.NORMAL,ignoreCancelled = true)
+    private void onSignBreak(BlockDropItemEvent e){
+        if(e.getBlock().getState().getData() instanceof Sign){
+            Sign sign = (Sign) e.getBlock().getState().getData();
+            Shop shop = getShopNextTo(e.getBlock().getLocation());
+            if(shop != null && shop.getSigns().contains(sign))
+                e.setCancelled(true);
+            }
+        }
 }
