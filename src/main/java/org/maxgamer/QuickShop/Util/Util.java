@@ -548,6 +548,9 @@ public class Util {
                         return false;
                     }
                 }
+
+                output(output,sender, "QS MATCH SUCCESS: item meta matches: " + stack1 + " matched "+ stack2);
+                return true;
             }
             output(output, sender, "QS MATCH FAIL: meta class failed - " + stack1 + " didn't match " + stack2);
             return false;
