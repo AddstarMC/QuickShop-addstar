@@ -475,23 +475,24 @@ public class Util {
     }
 
     public static boolean matches(ItemStack stack1, ItemStack stack2, CommandSender sender, boolean output) {
-        if(stack1 == null && stack2 == null){
+        if(stack1 == null && stack2 == null) {
             return true;
         }
-        if(stack1 == null){
+        if(stack1 == null) {
             return false;
         }
-        if(stack1.isSimilar(stack2)){ //Qty does not need to match here.
-            output(output,sender, "QS MATCH SUCCES: isSimilar match: " + stack1 + " matched "+ stack2);
+        if(stack1.isSimilar(stack2)) {
+            //Qty does not need to match here.
+            output(output,sender, "QS MATCH SUCCESS: isSimilar match: " + stack1 + " matched "+ stack2);
             return true;
         }
         //Fuzzy match now...
-        if (stack1.getType() != stack2.getType()){
-            output(output,sender, "QS MATCH FAIL: " + stack1 + " didnt match "+ stack2);
+        if (stack1.getType() != stack2.getType()) {
+            output(output,sender, "QS MATCH FAIL: " + stack1 + " didn't match "+ stack2);
             return false; // Not the same material
         }
-        if(stack1.hasItemMeta() != stack2.hasItemMeta()){
-            output(output,sender, "QS MATCH FAIL: " + stack1 + " didnt match "+ stack2);
+        if(stack1.hasItemMeta() != stack2.hasItemMeta()) {
+            output(output,sender, "QS MATCH FAIL: " + stack1 + " didn't match "+ stack2);
             return false;
         }
         if(stack1.hasItemMeta()) {
@@ -506,7 +507,7 @@ public class Util {
                     BookMeta bmeta1 = (BookMeta) meta1;
                     BookMeta bmeta2 = (BookMeta) meta2;
                     if (!bmeta1.getPages().equals(bmeta2.getPages()) || !bmeta1.getTitle().equals(bmeta2.getTitle())) {
-                        output(output, sender, "QS MATCH FAIL: BookMeta mismatch -" + stack1 + " didnt match " + stack2);
+                        output(output, sender, "QS MATCH FAIL: BookMeta mismatch -" + stack1 + " didn't match " + stack2);
                         return false;
                     }
                 }
@@ -514,22 +515,21 @@ public class Util {
                     PotionData potionData = ((PotionMeta) meta1).getBasePotionData();
                     PotionData pdata2 = ((PotionMeta) meta2).getBasePotionData();
                     if (!potionData.equals(pdata2)) {
-                        output(output, sender, "QS MATCH FAIL: PotionData mismatch -" + stack1 + " didnt match " + stack2);
+                        output(output, sender, "QS MATCH FAIL: PotionData mismatch -" + stack1 + " didn't match " + stack2);
                         return false;
                     }
-
                 }
                 if (meta1 instanceof FireworkMeta) {
                     FireworkMeta fmeta = (FireworkMeta) meta1;
                     if (!fmeta.getEffects().equals(((FireworkMeta) meta2).getEffects()) || fmeta.getPower() != ((FireworkMeta) meta2).getPower()) {
-                        output(output, sender, "QS MATCH FAIL: FireworkMeta mismatch -" + stack1 + " didnt match " + stack2);
+                        output(output, sender, "QS MATCH FAIL: FireworkMeta mismatch -" + stack1 + " didn't match " + stack2);
                         return false;
                     }
                 }
                 if (meta1 instanceof SkullMeta) {
                     if (((SkullMeta) meta1).hasOwner() != ((SkullMeta) meta2).hasOwner() || (((SkullMeta) meta1).hasOwner() &&
                             ((SkullMeta) meta1).getOwningPlayer().getUniqueId() != ((SkullMeta) meta2).getOwningPlayer().getUniqueId())) {
-                        output(output, sender, "QS MATCH FAIL: SkullMeta mismatch -" + stack1 + " didnt match " + stack2);
+                        output(output, sender, "QS MATCH FAIL: SkullMeta mismatch -" + stack1 + " didn't match " + stack2);
                         return false;
                     }
 
@@ -538,20 +538,20 @@ public class Util {
                     BannerMeta bannerMeta = (BannerMeta) meta1;
                     BannerMeta bmeta2 = (BannerMeta) meta2;
                     if (!bannerMeta.getPatterns().equals(bmeta2.getPatterns())) {
-                        output(output, sender, "QS MATCH FAIL: BannerMeta mismatch -" + stack1 + " didnt match " + stack2);
+                        output(output, sender, "QS MATCH FAIL: BannerMeta mismatch -" + stack1 + " didn't match " + stack2);
                         return false;
                     }
                 }
                 if (meta1 instanceof EnchantmentStorageMeta) {
                     if (!meta1.getEnchants().equals(meta2.getEnchants())) {
-                        output(output, sender, "QS MATCH FAIL: EnchantStorageMeta mismatch -" + stack1 + " didnt match " + stack2);
+                        output(output, sender, "QS MATCH FAIL: EnchantStorageMeta mismatch -" + stack1 + " didn't match " + stack2);
                         return false;
                     }
                 }
             }
-            output(output, sender, "QS MATCH FAIL: meta class failed - " + stack1 + " didnt match " + stack2);
+            output(output, sender, "QS MATCH FAIL: meta class failed - " + stack1 + " didn't match " + stack2);
             return false;
-        }else {
+        } else {
             return true;
         }
     }
