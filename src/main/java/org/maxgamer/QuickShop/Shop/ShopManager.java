@@ -490,20 +490,32 @@ public class ShopManager {
                         final double tax = plugin.getConfig().getDouble("tax");
                         final double total = amount * shop.getPrice();
 
-                        if (!plugin.getEcon().withdraw(p, total)) {
+                        // Check if player has enough to pay for it
+                        if (plugin.getEcon().getBalance(p) <= total) {
                             p.sendMessage(MsgUtil.getMessage("you-cant-afford-to-buy",
                                     format(amount * shop.getPrice()),
                                     format(plugin.getEcon().getBalance(p))));
                             return;
                         }
 
+                        // Attempt to give money to the shop owner
                         if (!shop.isUnlimited() || plugin.getConfig().getBoolean("shop.pay-unlimited-shop-owners")) {
-                            plugin.getEcon().deposit(shop.getOwner(), total * (1 - tax));
+                            try {
+                                plugin.getEcon().deposit(shop.getOwner(), total * (1 - tax));
+                            } catch (Exception ex) {
+                                p.sendMessage(ChatColor.RED + "Error: Unable to purchase from this shop!");
+                                plugin.getLogger().warning("Unable to complete purchase from QuickShop owned by " + shop.getOwner().getName());
+                                ex.printStackTrace();
+                                return;
+                            }
 
                             if (tax != 0 && plugin.getTaxAccount().hasPlayedBefore()) {
                                 plugin.getEcon().deposit(plugin.getTaxAccount(), total * tax);
                             }
                         }
+
+                        // Withdraw the money from the purchaser
+                        plugin.getEcon().withdraw(p, total);
 
                         // Notify the shop owner
                         if (plugin.getConfig().getBoolean("show-tax")) {
