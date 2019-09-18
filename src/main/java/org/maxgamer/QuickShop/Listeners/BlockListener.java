@@ -81,7 +81,7 @@ public class BlockListener implements Listener {
             }
             shop.delete();
             p.sendMessage(MsgUtil.getMessage("success-removed-shop"));
-        } else if (b.getType() == Material.WALL_SIGN) {
+        } else if (b.getType() == Material.OAK_WALL_SIGN) {
             final Shop shop = getShopNextTo(b.getLocation());
             if (shop == null) {
                 return;

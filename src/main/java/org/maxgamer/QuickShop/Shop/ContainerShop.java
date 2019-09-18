@@ -609,7 +609,7 @@ public class ContainerShop implements Shop {
         blocks[3] = loc.getBlock().getRelative(0, 0, -1);
 
         for (final Block b: blocks) {
-            if (b.getType() != Material.WALL_SIGN) {
+            if (b.getType() != Material.OAK_WALL_SIGN) {
                 continue;
             }
             if (!isAttached(b)) {
@@ -638,7 +638,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public boolean isAttached(Block b) {
-        if (b.getType() != Material.WALL_SIGN) {
+        if (b.getType() != Material.OAK_WALL_SIGN) {
             new IllegalArgumentException(b + " Is not a sign!").printStackTrace();
         }
         return getLocation().getBlock().equals(Util.getAttached(b));

@@ -69,7 +69,7 @@ public class PlayerListener implements Listener {
 
         final Block b = e.getClickedBlock();
 
-        if (!Util.canBeShop(b) && b.getType() != Material.WALL_SIGN) {
+        if (!Util.canBeShop(b) && b.getType() != Material.OAK_WALL_SIGN) {
             return;
         }
         final Player p = e.getPlayer();
@@ -85,7 +85,7 @@ public class PlayerListener implements Listener {
         // Get the shop
         Shop shop = plugin.getShopManager().getShop(loc);
         // If that wasn't a shop, search nearby shops
-        if (shop == null && b.getType() == Material.WALL_SIGN) {
+        if (shop == null && b.getType() == Material.OAK_WALL_SIGN) {
             final Block attached = Util.getAttached(b);
             if (attached != null) {
                 shop = plugin.getShopManager().getShop(attached.getLocation());

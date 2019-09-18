@@ -401,7 +401,7 @@ public class ShopManager {
                                 signBlockState = signblock.getState();
                             }
                         }
-                        signBlockState.setType(Material.WALL_SIGN);
+                        signBlockState.setType(Material.OAK_WALL_SIGN);
                         final Sign sign = (Sign) signBlockState.getData();
                         sign.setFacingDirection(bf);
                         signBlockState.update(true);
