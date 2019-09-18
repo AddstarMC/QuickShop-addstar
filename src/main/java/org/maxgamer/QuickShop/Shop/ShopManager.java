@@ -402,7 +402,7 @@ public class ShopManager {
                             }
                         }
                         signBlockState.setType(Material.OAK_WALL_SIGN);
-                        org.bukkit.block.data.type.WallSign signBlockDataType = (org.bukkit.block.data.type.WallSign) signBlockState.getBlockData();
+                        WallSign signBlockDataType = (WallSign) signBlockState.getBlockData();
                         signBlockDataType.setFacing(bf);
                         signBlockState.update(true);
                         shop.setSignText();

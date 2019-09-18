@@ -597,6 +597,7 @@ public class Util {
             return null;
         }
     }
+    
     /**
      * Counts the number of items in the given inventory where
      * Util.matches(inventory item, item) is true.
