@@ -20,7 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Attachable;
 import org.bukkit.material.Directional;
-import org.bukkit.material.Sign;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.metadata.MetadataValue;
 import org.maxgamer.QuickShop.QuickShop;
 import org.maxgamer.QuickShop.Database.Database;
@@ -402,8 +402,8 @@ public class ShopManager {
                             }
                         }
                         signBlockState.setType(Material.OAK_WALL_SIGN);
-                        final Sign sign = (Sign) signBlockState.getData();
-                        sign.setFacingDirection(bf);
+                        org.bukkit.block.data.type.WallSign signBlockDataType = (org.bukkit.block.data.type.WallSign) signBlockState.getBlockData();
+                        signBlockDataType.setFacing(bf);
                         signBlockState.update(true);
                         shop.setSignText();
                     }
