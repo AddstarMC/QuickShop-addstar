@@ -10,6 +10,8 @@ import java.util.Set;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.*;
+import org.bukkit.block.data.Directional;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -588,20 +590,14 @@ public class Util {
      * @return The block the sign is attached to
      */
     public static Block getAttached(Block b) {
-        try {
-            final Sign sign = (Sign) b.getState().getData(); // Throws a NPE
-                                                             // sometimes??
-            final BlockFace attached = sign.getAttachedFace();
-
-            if (attached == null) {
-                return null;
-            }
-            return b.getRelative(attached);
-        } catch (final NullPointerException e) {
-            return null; // /Not sure what causes this.
+        if (b.getBlockData() instanceof Directional) {
+            Directional directional = (Directional) b.getBlockData();
+            return b.getRelative(directional.getFacing().getOppositeFace());
+        } else {
+            return null;
         }
     }
-
+    
     /**
      * Counts the number of items in the given inventory where
      * Util.matches(inventory item, item) is true.
