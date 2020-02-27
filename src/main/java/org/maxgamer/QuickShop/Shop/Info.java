@@ -3,6 +3,8 @@ package org.maxgamer.QuickShop.Shop;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
+import org.maxgamer.QuickShop.QuickShop;
+import org.maxgamer.QuickShop.exceptions.InvalidShopException;
 
 public class Info {
     private final Location loc;
@@ -68,7 +70,12 @@ public class Info {
         if (!this.shop.getOwner().equals(shop.getOwner())) {
             return true;
         }
-        return this.shop.getPrice() != shop.getPrice() || !this.shop.getLocation().equals(shop.getLocation()) || !this.shop.matches(shop.getItem());
+        try {
+            return this.shop.getPrice() != shop.getPrice() || !this.shop.getLocation().equals(shop.getLocation()) || !this.shop.matches(shop.getItem());
+        }catch (InvalidShopException e){
+            QuickShop.instance.log(e.getMessage());
+            return true;
+        }
 
     }
 

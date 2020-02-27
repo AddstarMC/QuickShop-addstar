@@ -28,6 +28,7 @@ import org.bukkit.material.Sign;
 
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.maxgamer.QuickShop.QuickShop;
 
@@ -489,6 +490,9 @@ public class Util {
             output(output,sender, "QS MATCH SUCCESS: isSimilar match: " + stack1 + " matched "+ stack2);
             return true;
         }
+        if(stack2 == null) {
+            return false;
+        }
         //Fuzzy match now...
         if (stack1.getType() != stack2.getType()) {
             output(output,sender, "QS MATCH FAIL: " + stack1 + " didn't match "+ stack2);
@@ -609,7 +613,7 @@ public class Util {
      *            The ItemStack to search for
      * @return The number of items that match in this inventory.
      */
-    public static int countItems(@Nullable Inventory inv, ItemStack item) {
+    public static int countItems(Inventory inv,@NotNull ItemStack item) {
         if(inv == null) {
             return 0;
         }

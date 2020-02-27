@@ -31,6 +31,7 @@ import org.maxgamer.QuickShop.Shop.Shop;
 import org.maxgamer.QuickShop.Shop.ShopAction;
 import org.maxgamer.QuickShop.Util.MsgUtil;
 import org.maxgamer.QuickShop.Util.Util;
+import org.maxgamer.QuickShop.exceptions.InvalidShopException;
 
 public class PlayerListener implements Listener {
     private final QuickShop plugin;
@@ -100,10 +101,18 @@ public class PlayerListener implements Listener {
                 return;
             }
             MsgUtil.sendShopInfo(p, shop);
+            final ItemStack shopItem;
+            try {
+                shopItem = shop.getItem();
+            } catch (InvalidShopException exception) {
+                p.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
+                QuickShop.instance.log(exception.getMessage());
+                return;
+            }
             if (shop.isSelling()) {
                 p.sendMessage(MsgUtil.getMessage("how-many-buy"));
             } else {
-                final int items = Util.countItems(p.getInventory(), shop.getItem());
+                final int items = Util.countItems(p.getInventory(), shopItem);
 
                 p.sendMessage(MsgUtil.getMessage("how-many-sell", "" + items));
             }

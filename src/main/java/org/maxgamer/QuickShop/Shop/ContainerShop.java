@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.maxgamer.QuickShop.QuickShop;
 import org.maxgamer.QuickShop.Util.MsgUtil;
@@ -160,7 +161,11 @@ public class ContainerShop implements Shop {
         }
 
         // They're both trading the same item
-        return nextTo.matches(getItem()) && getShopType() != nextTo.getShopType();
+        try {
+            return nextTo.matches(getItem()) && getShopType() != nextTo.getShopType();
+        } catch (InvalidShopException e){
+            return false;
+        }
     }
 
     /**
@@ -267,7 +272,10 @@ public class ContainerShop implements Shop {
      * @return Returns a dummy itemstack of the item this shop is selling.
      */
     @Override
-    public ItemStack   getItem() {
+    @NotNull
+    public ItemStack  getItem() throws InvalidShopException{
+        if(item == null)
+            throw new InvalidShopException("Shop Item was null.");
         return item;
     }
 
@@ -666,7 +674,12 @@ public class ContainerShop implements Shop {
      */
     @Override
     public String getDataName() {
-        return Util.getName(getItem());
+        try {
+            return Util.getName(getItem());
+        } catch (InvalidShopException e) {
+            QuickShop.instance.log(e.getMessage());
+            return "ERROR ITEM INVALID";
+        }
     }
 
     /**
@@ -746,8 +759,12 @@ public class ContainerShop implements Shop {
         }
         final boolean trans = getLocation().clone().add(0.5, 1.2, 0.5).getBlock().getType().isTransparent();
         if (trans && getDisplayItem() == null) {
-            displayItem = new DisplayItem(this, getItem());
-            getDisplayItem().spawn();
+            try {
+                displayItem = new DisplayItem(this, getItem());
+                getDisplayItem().spawn();
+            }catch (InvalidShopException e){
+                QuickShop.instance.log(e.getMessage());
+            }
         }
 
         if (getDisplayItem() != null) {
@@ -819,8 +836,13 @@ public class ContainerShop implements Shop {
             sb.append(" Unlimited: true");
         }
         sb.append(" Price: ").append(getPrice());
-        sb.append("Item: ").append(getItem().toString());
-
+        sb.append("Item: ");
+        try {
+            sb.append(getItem().toString());
+        }catch (InvalidShopException e) {
+            QuickShop.instance.log(e.getMessage());
+            sb.append("ERROR");
+        }
         return sb.toString();
     }
 }

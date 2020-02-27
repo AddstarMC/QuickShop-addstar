@@ -82,7 +82,7 @@ public interface Shop {
     /**
      * @return Returns a dummy itemstack of the item this shop is selling.
      */
-    ItemStack getItem();
+    ItemStack getItem() throws InvalidShopException;
 
     /**
      * Removes an item from the shop.

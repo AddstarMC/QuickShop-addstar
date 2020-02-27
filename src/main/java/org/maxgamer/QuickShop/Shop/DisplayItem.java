@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 import org.maxgamer.QuickShop.QuickShop;
+import org.maxgamer.QuickShop.exceptions.InvalidShopException;
 
 /**
  * @author Netherfoam
@@ -107,12 +108,16 @@ public class DisplayItem {
             if (eLoc.equals(displayLoc) || eLoc.equals(shop.getLocation())) {
                 final ItemStack near = ((Item) e).getItemStack();
                 // Do a rough match as to remove the old type of item
-                if (shop.getItem().getType() == near.getType()) {
-                    e.remove();
-                    removed = true;
-                    if (qs.debug) {
-                       qs.getLogger().log(Level.INFO,"Removed rogue item: " + near.getType());
+                try {
+                    if (shop.getItem().getType() == near.getType()) {
+                        e.remove();
+                        removed = true;
+                        if (qs.debug) {
+                            qs.getLogger().log(Level.INFO, "Removed rogue item: " + near.getType());
+                        }
                     }
+                }catch (InvalidShopException exceptiopn) {
+                    QuickShop.instance.log(exceptiopn.getMessage());
                 }
             }
         }

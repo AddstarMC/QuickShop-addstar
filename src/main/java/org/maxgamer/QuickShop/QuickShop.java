@@ -296,17 +296,26 @@ public class QuickShop extends JavaPlugin {
                     z = rs.getInt("z");
                     worldName = rs.getString("world");
                     final World world = Bukkit.getWorld(worldName);
-
-                    final ItemStack item = Util.deserialize(rs.getString("itemConfig"));
-
+                    String itemString = rs.getString("itemConfig");
+                    final ItemStack item = Util.deserialize(itemString);
                     final UUID owner = UUID.fromString(rs.getString("ownerId"));
                     final double price = rs.getDouble("price");
                     final Location loc = new Location(world, x, y, z);
                     /* Skip invalid shops, if we know of any */
+                    boolean toDelete = false;
+                    if(item == null) {
+                        QuickShop.instance.log("Invalid Shop in Database:");
+                        QuickShop.instance.log("Result: "+ rs.getRow());
+                        QuickShop.instance.log("Item: "+itemString);
+                        toDelete = true;
+                    }
                     if (world != null && !(loc.getBlock().getState() instanceof InventoryHolder)) {
                         getLogger().info(
-                                "Shop is not an InventoryHolder in " + rs.getString("world") + " at: " + x + ", " + y
-                                        + ", " + z + ".  Deleting.");
+                              "Shop is not an InventoryHolder in " + rs.getString("world") + " at: " + x + ", " + y
+                                    + ", " + z + ".  Deleting.");
+                        toDelete =true;
+                    }
+                    if(toDelete){
                         final PreparedStatement delps = getDB().getConnection().prepareStatement(
                                 "DELETE FROM shops WHERE x = ? AND y = ? and z = ? and world = ?");
                         delps.setInt(1, x);

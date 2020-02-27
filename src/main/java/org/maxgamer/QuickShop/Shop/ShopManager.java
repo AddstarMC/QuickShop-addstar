@@ -56,7 +56,13 @@ public class ShopManager {
 
     public void createShop(Shop shop) {
         final Location loc = shop.getLocation();
-        final ItemStack item = shop.getItem();
+        final ItemStack item;
+        try {
+            item = shop.getItem();
+        } catch (InvalidShopException e) {
+            QuickShop.instance.log(e.getMessage());
+            return;
+        }
         try {
             // Write it to the database
             final String q = "INSERT INTO shops (ownerId, price, itemConfig, x, y, z, world, unlimited, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -454,28 +460,24 @@ public class ShopManager {
 
                 if (shop.isSelling()) {
                     final int stock;
+                    final ItemStack itemSold;
                     try {
                         stock = shop.getRemainingStock();
+                        itemSold = shop.getItem();
                     } catch (InvalidShopException e){
                         p.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
                         QuickShop.instance.log(e.getMessage());
                         return;
                     }
                     if (stock < amount) {
-                        try {
-                            p.sendMessage(MsgUtil.getMessage("shop-stock-too-low", "" + shop.getRemainingStock(),
-                                  shop.getDataName()));
-                        } catch (InvalidShopException e) {
-                            p.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
-                            QuickShop.instance.log(e.getMessage());
-                            return;
-                        }
+                            p.sendMessage(MsgUtil.getMessage("shop-stock-too-low", ""
+                                        + stock, shop.getDataName()));
                         return;
                     }
 
                     if (validatePurchase(p, amount, shop)) return;
     
-                    final int pSpace = Util.countSpace(p.getInventory(), shop.getItem());
+                    final int pSpace = Util.countSpace(p.getInventory(), itemSold);
                     if (amount > pSpace) {
                         p.sendMessage(MsgUtil.getMessage("not-enough-space", "" + pSpace));
                         return;
@@ -570,8 +572,10 @@ public class ShopManager {
                             + shop.toString());
                 } else if (shop.isBuying()) {
                     final int space;
+                    final ItemStack itemSold;
                     try {
                          space = shop.getRemainingSpace();
+                         itemSold = shop.getItem();
                     }catch (InvalidShopException e) {
                         p.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
                         QuickShop.instance.log(e.getMessage());
@@ -582,7 +586,7 @@ public class ShopManager {
                         return;
                     }
 
-                    final int count = Util.countItems(p.getInventory(), shop.getItem());
+                    final int count = Util.countItems(p.getInventory(), itemSold);
 
                     // Not enough items
                     if (amount > count) {

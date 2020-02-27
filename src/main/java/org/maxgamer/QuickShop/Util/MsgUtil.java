@@ -239,15 +239,25 @@ public class MsgUtil {
     }
 
     public static void sendPurchaseSuccess(Player p, Shop shop, int amount) {
+        final ItemStack shopItem;
+        final String shopDataName;
+        try {
+            shopItem = shop.getItem();
+            shopDataName = shop.getDataName();
+        } catch (InvalidShopException e) {
+            p.sendMessage("Invalid Shop - error");
+            QuickShop.instance.log(e.getMessage());
+            return;
+        }
         p.sendMessage(ChatColor.DARK_PURPLE + "+---------------------------------------------------+");
         p.sendMessage(ChatColor.DARK_PURPLE + "| " + MsgUtil.getMessage("menu.successful-purchase"));
 
         p.sendMessage(ChatColor.DARK_PURPLE
                 + "| "
-                + MsgUtil.getMessage("menu.item-name-and-price", "" + amount, shop.getDataName(),
+                + MsgUtil.getMessage("menu.item-name-and-price", "" + amount, shopDataName,
                 Util.format((amount * shop.getPrice()))));
 
-        Map<Enchantment, Integer> enchs = shop.getItem().getItemMeta().getEnchants();
+        Map<Enchantment, Integer> enchs = shopItem.getItemMeta().getEnchants();
         if (enchs != null && !enchs.isEmpty()) {
             p.sendMessage(ChatColor.DARK_PURPLE + "+--------------------" + MsgUtil.getMessage("menu.enchants")
                     + "-----------------------+");
@@ -257,7 +267,7 @@ public class MsgUtil {
             }
         }
 
-        enchs = shop.getItem().getItemMeta().getEnchants();
+        enchs = shopItem.getItemMeta().getEnchants();
         if (enchs != null && !enchs.isEmpty()) {
             p.sendMessage(ChatColor.DARK_PURPLE + "+-----------------" + MsgUtil.getMessage("menu.stored-enchants")
                     + "--------------------+");
@@ -270,8 +280,8 @@ public class MsgUtil {
         try {
             Class.forName("org.bukkit.inventory.meta.EnchantmentStorageMeta");
 
-            if (shop.getItem().getItemMeta() instanceof EnchantmentStorageMeta) {
-                final EnchantmentStorageMeta stor = (EnchantmentStorageMeta) shop.getItem().getItemMeta();
+            if (shopItem.getItemMeta() instanceof EnchantmentStorageMeta) {
+                final EnchantmentStorageMeta stor = (EnchantmentStorageMeta) shopItem.getItemMeta();
                 stor.getStoredEnchants();
 
                 enchs = stor.getStoredEnchants();
@@ -293,11 +303,12 @@ public class MsgUtil {
     }
 
     public static void sendSellSuccess(Player p, Shop shop, int amount) {
+        final String shopDataName = shop.getDataName();
         p.sendMessage(ChatColor.DARK_PURPLE + "+---------------------------------------------------+");
         p.sendMessage(ChatColor.DARK_PURPLE + "| " + MsgUtil.getMessage("menu.successfully-sold"));
         p.sendMessage(ChatColor.DARK_PURPLE
                 + "| "
-                + MsgUtil.getMessage("menu.item-name-and-price", "" + amount, shop.getDataName(),
+                + MsgUtil.getMessage("menu.item-name-and-price", "" + amount, shopDataName,
                 Util.format((amount * shop.getPrice()))));
 
         if (MsgUtil.plugin.getConfig().getBoolean("show-tax")) {
@@ -312,8 +323,14 @@ public class MsgUtil {
                 }
             }
         }
-
-        Map<Enchantment, Integer> enchs = shop.getItem().getItemMeta().getEnchants();
+        final ItemStack shopItem;
+        try {
+            shopItem = shop.getItem();
+        } catch (InvalidShopException e) {
+            p.sendMessage("Invalid Shop - error");
+            QuickShop.instance.log(e.getMessage());
+            return;
+        }        Map<Enchantment, Integer> enchs = shopItem.getItemMeta().getEnchants();
         if (enchs != null && !enchs.isEmpty()) {
             p.sendMessage(ChatColor.DARK_PURPLE + "+--------------------" + MsgUtil.getMessage("menu.enchants")
                     + "-----------------------+");
@@ -322,8 +339,8 @@ public class MsgUtil {
                         + entries.getValue());
             }
         }
-        if (shop.getItem().getItemMeta() instanceof EnchantmentStorageMeta) {
-            final EnchantmentStorageMeta stor = (EnchantmentStorageMeta) shop.getItem().getItemMeta();
+        if (shopItem.getItemMeta() instanceof EnchantmentStorageMeta) {
+            final EnchantmentStorageMeta stor = (EnchantmentStorageMeta) shopItem.getItemMeta();
             stor.getStoredEnchants();
 
             enchs = stor.getStoredEnchants();
