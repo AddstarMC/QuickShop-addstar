@@ -20,9 +20,11 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.maxgamer.QuickShop.QuickShop;
 import org.maxgamer.QuickShop.Util.MsgUtil;
 import org.maxgamer.QuickShop.Util.Util;
+import org.maxgamer.QuickShop.exceptions.InvalidShopException;
 
 public class ContainerShop implements Shop {
     private final Location  loc;
@@ -97,7 +99,7 @@ public class ContainerShop implements Shop {
      * @return The number of items available for purchase.
      */
     @Override
-    public int getRemainingStock() {
+    public int getRemainingStock() throws InvalidShopException{
         if (unlimited) {
             return 10000;
         }
@@ -110,7 +112,7 @@ public class ContainerShop implements Shop {
      * @return and integer showing the remaining spaces
      */
     @Override
-    public int getRemainingSpace() {
+    public int getRemainingSpace() throws InvalidShopException {
         if (unlimited) {
             return 10000;
         }
@@ -197,7 +199,7 @@ public class ContainerShop implements Shop {
     }
 
     /**
-     * Upates the shop into the database.
+     * Updates the shop into the database.
      */
     @Override
     public void update() {
@@ -229,10 +231,17 @@ public class ContainerShop implements Shop {
     /**
      * @return The chest this shop is based on.
      */
-
-    public Inventory getInventory() {
-        final InventoryHolder container = (InventoryHolder) loc.getBlock().getState();
-        return container.getInventory();
+    public Inventory getInventory() throws InvalidShopException {
+        try {
+            final InventoryHolder container = (InventoryHolder) loc.getBlock().getState();
+            return container.getInventory();
+        } catch (ClassCastException e) {
+            InvalidShopException inv
+                  =  new InvalidShopException("Shop at :"+ loc.getBlock().getLocation().toString()
+                  + " is not an Inventory Holder");
+            inv.addSuppressed(e);
+            throw inv;
+        }
     }
 
     /**
@@ -258,7 +267,7 @@ public class ContainerShop implements Shop {
      * @return Returns a dummy itemstack of the item this shop is selling.
      */
     @Override
-    public ItemStack getItem() {
+    public ItemStack   getItem() {
         return item;
     }
 
@@ -272,12 +281,13 @@ public class ContainerShop implements Shop {
      *            The amount to remove from the shop.
      */
     @Override
-    public void remove(ItemStack item, int amount) {
+    public void remove(ItemStack item, int amount) throws InvalidShopException {
         if (unlimited) {
             return;
         }
         final Inventory inv = getInventory();
-
+        if(inv == null)
+            throw new InvalidShopException(this.toString());
         int remains = amount;
 
         while (remains > 0) {
@@ -298,7 +308,7 @@ public class ContainerShop implements Shop {
      *            The amount to add to the shop.
      */
     @Override
-    public void add(ItemStack item, int amount) {
+    public void add(ItemStack item, int amount) throws InvalidShopException{
         if (unlimited) {
             return;
         }
@@ -325,7 +335,7 @@ public class ContainerShop implements Shop {
      *            The amount to sell
      */
     @Override
-    public void sell(Player p, int amount) {
+    public void sell(Player p, int amount) throws InvalidShopException {
         if (amount < 0) {
             buy(p, -amount);
         }
@@ -390,7 +400,7 @@ public class ContainerShop implements Shop {
      *            The amount to buy
      */
     @Override
-    public void buy(Player p, int amount) {
+    public void buy(Player p, int amount) throws InvalidShopException {
         if (amount < 0) {
             sell(p, -amount);
         }
@@ -522,19 +532,23 @@ public class ContainerShop implements Shop {
         }
         String owner = getOwnerLine();
         final String[] lines = new String[4];
-        if(!closed) {
-            lines[0] = owner;
-            if (isBuying()) {
-                lines[1] = MsgUtil.getMessage("signs.buying", "" + getRemainingSpace());
+        try {
+            if (!closed) {
+                lines[0] = owner;
+                if (isBuying()) {
+                    lines[1] = MsgUtil.getMessage("signs.buying", "" + getRemainingSpace());
+                }
+                if (isSelling()) {
+                    lines[1] = MsgUtil.getMessage("signs.selling", "" + getRemainingStock());
+                }
+                lines[2] = Util.getName(item);
+                lines[3] = MsgUtil.getMessage("signs.price", "" + getPrice());
+            } else {
+                lines[0] = "Shop is Closed";
+                this.setSignText(lines);
             }
-            if (isSelling()) {
-                lines[1] = MsgUtil.getMessage("signs.selling", "" + getRemainingStock());
-            }
-            lines[2] = Util.getName(item);
-            lines[3] = MsgUtil.getMessage("signs.price", "" + getPrice());
-        }else{
-            lines[0] = "Shop is Closed";
-            this.setSignText(lines);
+        }catch (InvalidShopException e){
+            lines[0] = "Invalid Shop";
         }
         this.setSignText(lines);
     }

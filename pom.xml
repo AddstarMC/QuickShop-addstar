@@ -2,14 +2,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>au.com.addstar</groupId>
 	<artifactId>quickshop</artifactId>
-	<version>4.8.2-SNAPSHOT</version>
+	<version>4.9.0-SNAPSHOT</version>
 	<name>QuickShop</name>
 	<properties>
 		<build.number />
 		<plugin.version>${project.version}-${build.number}</plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spigot.api.version>1.13</spigot.api.version>
-		<spigot.version>1.14.4-R0.1-SNAPSHOT</spigot.version>
+		<spigot.version>1.15.2-R0.1-SNAPSHOT</spigot.version>
 	</properties>
 	<scm>
 		<connection>scm:git:git@github.com:AddstarMC/Quickshop.git</connection>
@@ -21,12 +21,12 @@
 		<repository>
 			<id>maven.addstar.com.au</id>
 			<name>maven.addstar.com.au-releases</name>
-			<url>http://maven.addstar.com.au/artifactory/ext-release-local</url>
+			<url>https://maven.addstar.com.au/artifactory/ext-release-local</url>
 		</repository>
 		<snapshotRepository>
 			<id>maven.addstar.com.au</id>
 			<name>maven.addstar.com.au-snapshots</name>
-			<url>http://maven.addstar.com.au/artifactory/ext-snapshot-local</url>
+			<url>https://maven.addstar.com.au/artifactory/ext-snapshot-local</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<developers>
@@ -60,14 +60,14 @@
 		<!-- Addstar repos -->
 		<repository>
 			<id>addstar-release-repo</id>
-			<url>http://maven.addstar.com.au/artifactory/all-release</url>
+			<url>https://maven.addstar.com.au/artifactory/all-release</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
 		<repository>
 			<id>addstar-snapshot-repo</id>
-			<url>http://maven.addstar.com.au/artifactory/all-snapshot</url>
+			<url>https://maven.addstar.com.au/artifactory/all-snapshot</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>

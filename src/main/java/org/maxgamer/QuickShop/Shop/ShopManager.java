@@ -28,6 +28,7 @@ import org.maxgamer.QuickShop.Util.MsgUtil;
 import org.maxgamer.QuickShop.Util.Util;
 
 import org.jetbrains.annotations.Nullable;
+import org.maxgamer.QuickShop.exceptions.InvalidShopException;
 
 public class ShopManager {
     private final QuickShop                                                    plugin;
@@ -452,13 +453,26 @@ public class ShopManager {
                 }
 
                 if (shop.isSelling()) {
-                    final int stock = shop.getRemainingStock();
-
-                    if (stock < amount) {
-                        p.sendMessage(MsgUtil.getMessage("shop-stock-too-low", "" + shop.getRemainingStock(),
-                                shop.getDataName()));
+                    final int stock;
+                    try {
+                        stock = shop.getRemainingStock();
+                    } catch (InvalidShopException e){
+                        p.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
+                        QuickShop.instance.log(e.getMessage());
                         return;
                     }
+                    if (stock < amount) {
+                        try {
+                            p.sendMessage(MsgUtil.getMessage("shop-stock-too-low", "" + shop.getRemainingStock(),
+                                  shop.getDataName()));
+                        } catch (InvalidShopException e) {
+                            p.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
+                            QuickShop.instance.log(e.getMessage());
+                            return;
+                        }
+                        return;
+                    }
+
                     if (validatePurchase(p, amount, shop)) return;
     
                     final int pSpace = Util.countSpace(p.getInventory(), shop.getItem());
@@ -544,13 +558,25 @@ public class ShopManager {
 
                     }
                     // Transfers the item from A to B
-                    shop.sell(p, amount);
+                    try {
+                        shop.sell(p, amount);
+                    } catch (InvalidShopException inv) {
+                        p.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
+                        QuickShop.instance.log(inv.getMessage());
+                        return;
+                    }
                     MsgUtil.sendPurchaseSuccess(p, shop, amount);
                     plugin.log(p.getName() + " bought " + amount + " for " + (shop.getPrice() * amount) + " from "
                             + shop.toString());
                 } else if (shop.isBuying()) {
-                    final int space = shop.getRemainingSpace();
-
+                    final int space;
+                    try {
+                         space = shop.getRemainingSpace();
+                    }catch (InvalidShopException e) {
+                        p.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
+                        QuickShop.instance.log(e.getMessage());
+                        return;
+                    }
                     if (space < amount) {
                         p.sendMessage(MsgUtil.getMessage("shop-has-no-space", "" + space, shop.getDataName()));
                         return;
@@ -612,8 +638,13 @@ public class ShopManager {
 
                         MsgUtil.send(shop.getOwner(), msg1);
                     }
-
-                    shop.buy(p, amount);
+                    try {
+                        shop.buy(p, amount);
+                    } catch (InvalidShopException e) {
+                        p.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
+                        QuickShop.instance.log(e.getMessage());
+                        return;
+                    }
                     MsgUtil.sendSellSuccess(p, shop, amount);
                     plugin.log(p.getName() + " sold " + amount + " for " + (shop.getPrice() * amount) + " to "
                             + shop.toString());

@@ -28,6 +28,7 @@ import org.maxgamer.QuickShop.Shop.Shop;
 import org.maxgamer.QuickShop.Shop.ShopChunk;
 import org.maxgamer.QuickShop.Shop.ShopType;
 import org.maxgamer.QuickShop.Util.MsgUtil;
+import org.maxgamer.QuickShop.exceptions.InvalidShopException;
 
 public class QS implements CommandExecutor {
     QuickShop plugin;
@@ -204,8 +205,13 @@ public class QS implements CommandExecutor {
                 final Block b = bIt.next();
                 final Shop shop = plugin.getShopManager().getShop(b.getLocation());
                 if (shop != null) {
-                    shop.add(shop.getItem(), add);
-
+                    try {
+                        shop.add(shop.getItem(), add);
+                    } catch (InvalidShopException e) {
+                        sender.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
+                        QuickShop.instance.log(e.getMessage());
+                        return;
+                    }
                     sender.sendMessage(MsgUtil.getMessage("refill-success"));
                     return;
                 }
@@ -225,7 +231,13 @@ public class QS implements CommandExecutor {
                 if (shop != null) {
                     if (shop instanceof ContainerShop) {
                         final ContainerShop cs = (ContainerShop) shop;
-                        cs.getInventory().clear();
+                        try {
+                            cs.getInventory().clear();
+                        } catch (InvalidShopException e) {
+                            sender.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
+                            QuickShop.instance.log(e.getMessage());
+                            return;
+                        }
                         sender.sendMessage(MsgUtil.getMessage("empty-success"));
                         return;
                     } else {
@@ -431,17 +443,29 @@ public class QS implements CommandExecutor {
             int i = 0;
             while (shIt.hasNext()) {
                 final Shop shop = shIt.next();
-                if (shop.getLocation().getWorld() != null && shop.isSelling() && shop.getRemainingStock() == 0
-                        && shop instanceof ContainerShop) {
-                    final ContainerShop cs = (ContainerShop) shop;
-                    if (cs.isDoubleShop()) {
-                        continue;
+                try {
+                    if (shop.getLocation().getWorld() != null && shop.isSelling() && shop.getRemainingStock() == 0
+                          && shop instanceof ContainerShop) {
+                        final ContainerShop cs = (ContainerShop) shop;
+                        if (cs.isDoubleShop()) {
+                            continue;
+                        }
+                        sender.sendMessage(
+                              MsgUtil.getMessage("success-removed-shop-id", cs.toString()));
+
+                        shIt.remove(); // Is selling, but has no stock, and is a
+                        // chest shop, but is not a double shop. Can
+                        // be deleted safely.
+                        i++;
+
                     }
-                    shIt.remove(); // Is selling, but has no stock, and is a
-                                   // chest shop, but is not a double shop. Can
-                                   // be deleted safely.
-                    i++;
-                }
+                } catch (InvalidShopException e) {
+                    sender.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
+                    QuickShop.instance.log(e.getMessage());
+                    QuickShop.instance.log("Shop was removed");
+                    shIt.remove();
+                return;
+            }
             }
 
             MsgUtil.clean();
@@ -519,11 +543,16 @@ public class QS implements CommandExecutor {
                                 } else if (shop.isSelling()) {
                                     selling++;
                                 }
-
-                                if (shop instanceof ContainerShop && ((ContainerShop) shop).isDoubleShop()) {
-                                    doubles++;
-                                } else if (shop.isSelling() && shop.getRemainingStock() == 0) {
-                                    nostock++;
+                                try {
+                                    if (shop instanceof ContainerShop && ((ContainerShop) shop).isDoubleShop()) {
+                                        doubles++;
+                                    } else if (shop.isSelling() && shop.getRemainingStock() == 0) {
+                                        nostock++;
+                                    }
+                                } catch (InvalidShopException e) {
+                                    sender.sendMessage(MsgUtil.getMessage("shop-is-invalid"));
+                                    QuickShop.instance.log(e.getMessage());
+                                    return true;
                                 }
                             }
                         }

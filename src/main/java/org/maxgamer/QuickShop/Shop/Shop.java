@@ -7,6 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.maxgamer.QuickShop.exceptions.InvalidShopException;
 
 public interface Shop {
     /**
@@ -26,14 +27,14 @@ public interface Shop {
      * 
      * @return The number of items available for purchase.
      */
-    int getRemainingStock();
+    int getRemainingStock() throws InvalidShopException;
 
     /**
      * Returns the number of free spots in the chest for the particular item.
      * 
      * @return remaining spaces
      */
-    int getRemainingSpace();
+    int getRemainingSpace() throws InvalidShopException;
 
     /**
      * Returns true if the ItemStack matches what this shop is selling/buying
@@ -92,7 +93,7 @@ public interface Shop {
      * @param amount
      *            The amount to remove from the shop.
      */
-    void remove(ItemStack item, int amount);
+    void remove(ItemStack item, int amount) throws InvalidShopException;
 
     /**
      * Add an item to shops chest.
@@ -103,7 +104,7 @@ public interface Shop {
      * @param amount
      *            The amount to add to the shop.
      */
-    void add(ItemStack item, int amount);
+    void add(ItemStack item, int amount) throws InvalidShopException;
 
     /**
      * Sells amount of item to Player p. Does NOT check our inventory, or
@@ -114,7 +115,7 @@ public interface Shop {
      * @param amount
      *            The amount to sell
      */
-    void sell(Player p, int amount);
+    void sell(Player p, int amount) throws InvalidShopException;
 
     /**
      * Buys amount of item from Player p. Does NOT check our inventory, or
@@ -125,7 +126,7 @@ public interface Shop {
      * @param amount
      *            The amount to buy
      */
-    void buy(Player p, int amount);
+    void buy(Player p, int amount) throws InvalidShopException;
 
     /**
      * Changes the owner of this shop to the given player.

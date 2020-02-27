@@ -209,7 +209,7 @@ public class QuickShop extends JavaPlugin {
         }
         boolean useMetrics = getConfig().getBoolean("metrics.enabled", true);
         if(useMetrics) {
-            metrics = new Metrics(this);
+            metrics = new Metrics(this,1476);
             getServer().getPluginManager().registerEvents(new ShopListener(metrics), this);
         }
         getLogger().info("QuickShop loaded!");

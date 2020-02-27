@@ -28,6 +28,7 @@ import org.bukkit.material.Sign;
 
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
+import org.jetbrains.annotations.Nullable;
 import org.maxgamer.QuickShop.QuickShop;
 
 import com.google.common.collect.Maps;
@@ -608,12 +609,12 @@ public class Util {
      *            The ItemStack to search for
      * @return The number of items that match in this inventory.
      */
-    public static int countItems(Inventory inv, ItemStack item) {
+    public static int countItems(@Nullable Inventory inv, ItemStack item) {
+        if(inv == null) {
+            return 0;
+        }
         int items = 0;
         for (final ItemStack iStack: inv.getContents()) {
-            if (iStack == null) {
-                continue;
-            }
             if (Util.matches(item, iStack)) {
                 items += iStack.getAmount();
             }

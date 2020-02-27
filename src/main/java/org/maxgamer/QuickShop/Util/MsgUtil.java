@@ -1,5 +1,6 @@
 package org.maxgamer.QuickShop.Util;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -10,6 +11,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.maxgamer.QuickShop.QuickShop;
 import org.maxgamer.QuickShop.Shop.ContainerShop;
 import org.maxgamer.QuickShop.Shop.Shop;
+import org.maxgamer.QuickShop.exceptions.InvalidShopException;
 
 import java.io.File;
 import java.io.InputStream;
@@ -59,31 +61,40 @@ public class MsgUtil {
      * loads all player purchase messages from the database.
      */
     public static void loadTransactionMessages() {
-        MsgUtil.player_messages.clear(); // Delete old messages
-        try {
-            final ResultSet rs = MsgUtil.plugin.getDB().getConnection().prepareStatement("SELECT * FROM messages")
-                    .executeQuery();
-
-            while (rs.next()) {
-                final String owner = rs.getString("owner");
-                final String message = rs.getString("message");
-
-                UUID id;
+        Bukkit.getScheduler().runTaskAsynchronously(QuickShop.instance, new Runnable() {
+            @Override
+            public void run() {
+                MsgUtil.player_messages.clear(); // Delete old messages
                 try {
-                    id = UUID.fromString(owner);
-                } catch (IllegalArgumentException e) {
-                    // Just ignore the non converted ones
-                    continue;
+                    final ResultSet rs
+                          = MsgUtil.plugin.getDB()
+                          .getConnection().prepareStatement("SELECT * FROM messages")
+                          .executeQuery();
+
+                    while (rs.next()) {
+                        final String owner = rs.getString("owner");
+                        final String message = rs.getString("message");
+
+                        UUID id;
+                        try {
+                            id = UUID.fromString(owner);
+                        } catch (IllegalArgumentException e) {
+                            // Just ignore the non converted ones
+                            continue;
+                        }
+
+                        LinkedList<String> msgs
+                              = MsgUtil.player_messages.computeIfAbsent(id, k -> new LinkedList<>());
+
+                        msgs.add(message);
+                    }
+                } catch (final SQLException e) {
+                    e.printStackTrace();
+                    System.out.println("Could not load transaction messages from database. Skipping.");
                 }
-
-                LinkedList<String> msgs = MsgUtil.player_messages.computeIfAbsent(id, k -> new LinkedList<>());
-
-                msgs.add(message);
             }
-        } catch (final SQLException e) {
-            e.printStackTrace();
-            System.out.println("Could not load transaction messages from database. Skipping.");
-        }
+        });
+
     }
 
     /**
@@ -144,10 +155,15 @@ public class MsgUtil {
     }
 
     public static void sendShopInfo(Player p, Shop shop) {
-        MsgUtil.sendShopInfo(p, shop, shop.getRemainingStock());
+        try {
+            MsgUtil.sendShopInfo(p, shop, shop.getRemainingStock());
+        }catch (InvalidShopException e){
+            p.sendMessage("Shop info for this Shop was invalid" );
+            QuickShop.instance.log(e.getMessage());
+        }
     }
 
-    public static void sendShopInfo(Player p, Shop shop, int stock) {
+    public static void sendShopInfo(Player p, Shop shop, int stock) throws InvalidShopException {
         // Potentially faster with an array?
         final ItemStack items = shop.getItem();
         p.sendMessage("");
