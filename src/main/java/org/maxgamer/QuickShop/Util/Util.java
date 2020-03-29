@@ -44,8 +44,6 @@ public class Util {
 
     private static QuickShop         plugin;
 
-    private final static String      charset     = "ISO-8859-1";
-
     static {
         Util.plugin = QuickShop.instance;
     
@@ -334,10 +332,6 @@ public class Util {
         return fin.toString();
     }
 
-    public static String toRomain(Integer value) {
-        return Util.toRoman(value);
-    }
-
     private static final String[] ROMAN   = {"X", "IX", "V", "IV", "I"};
     private static final int[]    DECIMAL = {10, 9, 5, 4, 1};
 
@@ -487,6 +481,9 @@ public class Util {
         }
         if(stack1.isSimilar(stack2)) {
             //Qty does not need to match here.
+            QuickShop.debugMsg("Item match on itemStack.isSimilar():");
+            QuickShop.debugMsg("Stack1:"+stack1.toString());
+            QuickShop.debugMsg("Stack2:"+stack2.toString());
             output(output,sender, "QS MATCH SUCCESS: isSimilar match: " + stack1 + " matched "+ stack2);
             return true;
         }
@@ -550,18 +547,27 @@ public class Util {
                     }
                 }
                 if (meta1 instanceof EnchantmentStorageMeta) {
-                    if (!meta1.getEnchants().equals(meta2.getEnchants())) {
+                    if (!((EnchantmentStorageMeta) meta1).getStoredEnchants().equals(((EnchantmentStorageMeta) meta2).getStoredEnchants())) {
                         output(output, sender, "QS MATCH FAIL: EnchantStorageMeta mismatch -" + stack1 + " didn't match " + stack2);
                         return false;
+                    } else {
+                        QuickShop.debugMsg("Item enchant meta matched");
+                        QuickShop.debugMsg("Stack1:"+meta1.getEnchants().keySet().toString());
+                        QuickShop.debugMsg("Stack2:"+meta2.getEnchants().keySet().toString());
                     }
                 }
-
                 output(output,sender, "QS MATCH SUCCESS: item meta matches: " + stack1 + " matched "+ stack2);
+                QuickShop.debugMsg("Item match on stack1 had META:");
+                QuickShop.debugMsg("Stack1:"+stack1.toString());
+                QuickShop.debugMsg("Stack2:"+stack2.toString());
                 return true;
             }
             output(output, sender, "QS MATCH FAIL: meta class failed - " + stack1 + " didn't match " + stack2);
             return false;
-        } else {
+        } else  { //at this point stack1 has no meta - so neither should stack 2
+            QuickShop.debugMsg("Item match on stack1 had no META:");
+            QuickShop.debugMsg("Stack1:"+stack1.toString());
+            QuickShop.debugMsg("Stack2:"+stack2.toString());
             return true;
         }
     }

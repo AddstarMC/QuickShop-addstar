@@ -239,11 +239,10 @@ public class QS implements CommandExecutor {
                             return;
                         }
                         sender.sendMessage(MsgUtil.getMessage("empty-success"));
-                        return;
                     } else {
                         sender.sendMessage(MsgUtil.getMessage("not-looking-at-shop"));
-                        return;
                     }
+                    return;
                 }
             }
             sender.sendMessage(MsgUtil.getMessage("not-looking-at-shop"));
@@ -489,8 +488,11 @@ public class QS implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
         if (args.length > 0) {
             final String subArg = args[0].toLowerCase();
-
-            if (subArg.equals("unlimited")) {
+            if(subArg.equals("debug")) {
+                plugin.debug = !plugin.debug;
+                sender.sendMessage("[QS] Debug is now " + plugin.debug);
+                return true;
+            } else if (subArg.equals("unlimited")) {
                 setUnlimited(sender);
                 return true;
             } else if (subArg.equals("setowner")) {
