@@ -60,7 +60,9 @@ public class Util {
         Util.tools.add(Material.SHEARS);
         Util.tools.add(Material.FISHING_ROD);
         Util.tools.add(Material.FLINT_AND_STEEL);
-    
+        Util.tools.add(Material.CARROT_ON_A_STICK);
+
+
         Util.tools.add(Material.CHAINMAIL_BOOTS);
         Util.tools.add(Material.CHAINMAIL_CHESTPLATE);
         Util.tools.add(Material.CHAINMAIL_HELMET);
@@ -112,7 +114,12 @@ public class Util {
         Util.tools.add(Material.IRON_CHESTPLATE);
         Util.tools.add(Material.IRON_HELMET);
         Util.tools.add(Material.IRON_LEGGINGS);
-    
+
+        Util.tools.add(Material.TRIDENT);
+        Util.tools.add(Material.CROSSBOW);
+        Util.tools.add(Material.ELYTRA);
+        Util.tools.add(Material.SHIELD);
+
         final List<String> configBlacklist = Util.plugin.getConfig().getStringList("blacklist");
     
         for (final String s : configBlacklist) {
