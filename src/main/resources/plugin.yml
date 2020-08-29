@@ -2,12 +2,11 @@ name: QuickShop
 version: ${plugin.version}
 api-version: ${spigot.api.version}
 main: org.maxgamer.QuickShop.QuickShop
-author: Netherfoam
+author: Narimm
 
 description: Economy Shops plugin
 website: http://maxgamer.org
-depend: [Monolith]
-softdepend: [Herochat, Vault, Spout]
+softdepend: [Vault]
 
 commands:
     qs:

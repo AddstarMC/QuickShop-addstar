@@ -9,7 +9,7 @@
 		<plugin.version>${project.version}-${build.number}</plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spigot.api.version>1.13</spigot.api.version>
-		<spigot.version>1.15.2-R0.1-SNAPSHOT</spigot.version>
+		<spigot.version>1.16.2-R0.1-SNAPSHOT</spigot.version>
 	</properties>
 	<scm>
 		<connection>scm:git:git@github.com:AddstarMC/Quickshop.git</connection>
@@ -93,7 +93,7 @@
 		<!-- Vault -->
 		<dependency>
 	      <groupId>net.milkbowl.vault</groupId>
-	      <artifactId>VaultAPI</artifactId>
+	      <artifactId>Vaultapi</artifactId>
 	      <version>1.7</version>
 	      <optional>true</optional>
 			<scope>provided</scope>
@@ -106,18 +106,6 @@
 	    </dependency>
 	    
 	    <!-- Monolith -->
-	    <dependency>
-			<groupId>au.com.addstar</groupId>
-			<artifactId>Monolith</artifactId>
-			<version>1.5.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.spigotmc</groupId>
-					<artifactId>spigot</artifactId>
-				</exclusion>
-			</exclusions>
-			<scope>provided</scope>
-		</dependency>
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
@@ -127,6 +115,7 @@
 			<groupId>org.jetbrains</groupId>
 			<artifactId>annotations</artifactId>
 			<version>19.0.0</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
@@ -152,6 +141,10 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.2.2</version>
                 <configuration>
+					<filters>
+						<filter>
+						</filter>
+					</filters>
                     <artifactSet>
                         <includes>
                             <include>org.bstats:*</include>

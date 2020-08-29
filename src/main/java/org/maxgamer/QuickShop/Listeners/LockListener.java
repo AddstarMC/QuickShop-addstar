@@ -126,7 +126,7 @@ public class LockListener implements Listener {
                 e.setCancelled(true);
                 p.sendMessage(MsgUtil.getMessage("no-permission"));
             }
-        } else if (b.getType() == Material.OAK_WALL_SIGN) {
+        } else if (Util.checkIfSign(b)) {
             b = Util.getAttached(b);
             if (b == null) {
                 return;

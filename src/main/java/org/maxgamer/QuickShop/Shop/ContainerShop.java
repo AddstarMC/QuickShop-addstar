@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -20,6 +21,7 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.maxgamer.QuickShop.QuickShop;
@@ -230,7 +232,11 @@ public class ContainerShop implements Shop {
      */
     @Override
     public short getDurability() {
-        return item.getDurability();
+        if(item.getItemMeta() instanceof Damageable) {
+            return ((short)((Damageable) item.getItemMeta()).getDamage());
+
+        }
+        return 0;
     }
 
     /**
@@ -631,7 +637,7 @@ public class ContainerShop implements Shop {
         blocks[3] = loc.getBlock().getRelative(0, 0, -1);
 
         for (final Block b: blocks) {
-            if (b.getType() != Material.OAK_WALL_SIGN) {
+            if(!Util.checkIfSign(b)) {
                 continue;
             }
             if (!isAttached(b)) {
@@ -660,7 +666,7 @@ public class ContainerShop implements Shop {
 
     @Override
     public boolean isAttached(Block b) {
-        if (b.getType() != Material.OAK_WALL_SIGN) {
+        if(!(b.getState().getBlockData() instanceof WallSign)) {
             new IllegalArgumentException(b + " Is not a sign!").printStackTrace();
         }
         return getLocation().getBlock().equals(Util.getAttached(b));
@@ -751,7 +757,7 @@ public class ContainerShop implements Shop {
     }
 
     private void checkDisplay() {
-        if (plugin.display == false) {
+        if (!plugin.display) {
             return;
         }
         if (getLocation().getWorld() == null) {

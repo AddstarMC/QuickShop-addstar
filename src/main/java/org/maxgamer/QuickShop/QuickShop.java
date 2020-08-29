@@ -416,17 +416,17 @@ public class QuickShop extends JavaPlugin {
             core = ecoClass.newInstance();
         } catch (final NoClassDefFoundError e) {
             // Thrown because the plugin backend is not installed
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("Could not find economy called " + econ + "... Is it installed? Using Vault instead!");
             core = new Economy_Vault();
         } catch (final ClassNotFoundException e) {
             // Thrown because we don't have a bridge for that plugin
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("QuickShop does not know how to hook into " + econ + "! Using Vault instead!");
             core = new Economy_Vault();
         } catch (final InstantiationException | IllegalAccessException e) {
             // Should not be thrown
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("Invalid Economy Core! " + econ);
             return false;
         }

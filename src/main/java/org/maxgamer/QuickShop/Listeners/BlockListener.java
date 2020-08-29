@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
+import org.bukkit.block.data.type.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -16,7 +17,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.material.Sign;
 import org.maxgamer.QuickShop.QuickShop;
 import org.maxgamer.QuickShop.Shop.*;
 import org.maxgamer.QuickShop.Util.MsgUtil;
@@ -81,7 +81,7 @@ public class BlockListener implements Listener {
             }
             shop.delete();
             p.sendMessage(MsgUtil.getMessage("success-removed-shop"));
-        } else if (b.getType() == Material.OAK_WALL_SIGN) {
+        } else if (Util.checkIfSign(b)) {
             final Shop shop = getShopNextTo(b.getLocation());
             if (shop == null) {
                 return;
@@ -142,7 +142,7 @@ public class BlockListener implements Listener {
     }
     @EventHandler(priority = EventPriority.NORMAL,ignoreCancelled = true)
     private void onSignBreak(BlockDropItemEvent e){
-        if(e.getBlock().getState().getData() instanceof Sign){
+        if(e.getBlock().getBlockData() instanceof Sign){
             Sign sign = (Sign) e.getBlock().getState().getData();
             Shop shop = getShopNextTo(e.getBlock().getLocation());
             if(shop != null && shop.getSigns().contains(sign))

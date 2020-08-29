@@ -13,15 +13,13 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.Attachable;
-import org.bukkit.material.Directional;
 import org.bukkit.block.data.type.WallSign;
-import org.bukkit.metadata.MetadataValue;
 import org.maxgamer.QuickShop.QuickShop;
 import org.maxgamer.QuickShop.Database.Database;
 import org.maxgamer.QuickShop.Util.MsgUtil;
@@ -31,11 +29,10 @@ import org.jetbrains.annotations.Nullable;
 import org.maxgamer.QuickShop.exceptions.InvalidShopException;
 
 public class ShopManager {
-    private final QuickShop                                                    plugin;
-    private final HashMap<String, Info>                                        actions        = new HashMap<>(
-            30);
+    private final QuickShop plugin;
+    private final HashMap<String, Info> actions = new HashMap<>(30);
 
-    private final HashMap<String, HashMap<ShopChunk, HashMap<Location, Shop>>> shops          = new HashMap<>(
+    private final HashMap<String, HashMap<ShopChunk, HashMap<Location, Shop>>> shops = new HashMap<>(
             3);
 
     public ShopManager(QuickShop plugin) {
@@ -399,18 +396,14 @@ public class ShopManager {
                     if (signblock != null && signblock.getType() == Material.AIR
                             && plugin.getConfig().getBoolean("shop.auto-sign")) {
                         BlockState signBlockState = signblock.getState();
-                        BlockFace bf = shopBlock.getFace(info.getSignBlock());
-                        if(bf == null){ //signBlock isn't connected???!!!
-                            if(shopBlock.getBlockData() instanceof Directional){
-                                Directional shopdata = (Directional) shopBlock.getBlockData();
-                                bf = shopdata.getFacing();
-                                signblock = shopBlock.getRelative(bf);
-                                signBlockState = signblock.getState();
-                            }
-                        }
+                        BlockData chest = shopBlock.getBlockData();
                         signBlockState.setType(Material.OAK_WALL_SIGN);
                         WallSign signBlockDataType = (WallSign) signBlockState.getBlockData();
-                        signBlockDataType.setFacing(bf);
+                        if(chest instanceof Directional) {
+                            BlockFace bf = ((Directional) chest).getFacing();
+                            signBlockDataType.setFacing(bf);
+                            signBlockState.setBlockData(signBlockDataType);
+                        }
                         signBlockState.update(true);
                         shop.setSignText();
                     }
