@@ -397,6 +397,8 @@ public class Util {
                 return "Record - 11";
             case MUSIC_DISC_WAIT:
                 return "Record - wait";
+            case MUSIC_DISC_PIGSTEP:
+                return "Record - PigStep";
             default:
                 throw new AssertionError("Unknown record " + record);
         }
